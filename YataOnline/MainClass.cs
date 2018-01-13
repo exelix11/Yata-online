@@ -18,7 +18,7 @@ namespace YataOnline
         static HTMLParagraphElement LoaderText = null;
         static HTMLSelectElement TopFrameType = null;
         static HTMLSelectElement BotFrameType = null;
-        const float AppVersion = 1;
+        const float AppVersion = 1.1f;
 
         public static readonly string[] loadingFaces = new string[] {"(ﾉ≧∀≦)ﾉ・‥…━━━★","o͡͡͡╮༼ ಠДಠ ༽╭o͡͡͡━☆ﾟ.*･｡ﾟ",
             "༼∩✿ل͜✿༽⊃━☆ﾟ. * ･ ｡ﾟ","༼(∩ ͡°╭͜ʖ╮͡ ͡°)༽⊃━☆ﾟ. * ･ ｡ﾟ",

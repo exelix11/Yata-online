@@ -15,14 +15,31 @@ namespace YataOnline
         static Theme t = null;
         static HTMLDivElement ImagesDiv = null;
         static HTMLDivElement loader = null;
+        static HTMLParagraphElement LoaderText = null;
         static HTMLSelectElement TopFrameType = null;
         static HTMLSelectElement BotFrameType = null;
         const float AppVersion = 1;
 
+        public static readonly string[] loadingFaces = new string[] {"(ﾉ≧∀≦)ﾉ・‥…━━━★","o͡͡͡╮༼ ಠДಠ ༽╭o͡͡͡━☆ﾟ.*･｡ﾟ",
+            "༼∩✿ل͜✿༽⊃━☆ﾟ. * ･ ｡ﾟ","༼(∩ ͡°╭͜ʖ╮͡ ͡°)༽⊃━☆ﾟ. * ･ ｡ﾟ",
+            "ᕦ( ✿ ⊙ ͜ʖ ⊙ ✿ )━☆ﾟ.*･｡ﾟ","(∩｀-´)⊃━☆ﾟ.*･｡ﾟ",
+            "༼∩☉ل͜☉༽⊃━☆ﾟ. * ･ ｡ﾟ","╰( ͡° ͜ʖ ͡° )つ──☆*:・ﾟ",
+            "(∩ ͡° ͜ʖ ͡°)⊃━☆ﾟ","੭•̀ω•́)੭̸*✩⁺˚",
+            "(੭ˊ͈ ꒵ˋ͈)੭̸*✧⁺˚","✩°｡⋆⸜(ू｡•ω•｡)",
+            "ヽ༼ຈل͜ຈ༽⊃─☆*:・ﾟ","╰(•̀ 3 •́)━☆ﾟ.*･｡ﾟ",
+            "(*’▽’)ノ＾—==ΞΞΞ☆","(੭•̀ω•́)੭̸*✩⁺˚",
+            "(っ・ω・）っ≡≡≡≡≡≡☆",". * ･ ｡ﾟ☆━੧༼ •́ ヮ •̀ ༽୨",
+            "༼∩ •́ ヮ •̀ ༽⊃━☆ﾟ. * ･ ｡ﾟ","(⊃｡•́‿•̀｡)⊃━☆ﾟ.*･｡ﾟ",
+            "★≡≡＼（`△´＼）","( ◔ ౪◔)⊃━☆ﾟ.*・",
+            "彡ﾟ◉ω◉ )つー☆*","(☆_・)・‥…━━━★",
+            "(つ◕౪◕)つ━☆ﾟ.*･｡ﾟ","(つ˵•́ω•̀˵)つ━☆ﾟ.*･｡ﾟ҉̛༽̨҉҉ﾉ",
+            "✩°｡⋆⸜(ू˙꒳​˙ )","╰( ⁰ ਊ ⁰ )━☆ﾟ.*･｡ﾟ"}; //Actually i think the strings can still be changed, but it works
+
         static void DoActionWithloading(Action action)
         {
-            loader.Hidden = false;
-            Window.SetTimeout(()=> { action(); loader.Hidden = true; }, 100);
+            LoaderText.TextContent = loadingFaces[new Random().Next(0, loadingFaces.Length)];
+            loader.Style.Display = "";
+            Window.SetTimeout(()=> { action(); loader.Style.Display = "none"; }, 100);
         }
 
         static void OnLoaded()
@@ -32,6 +49,7 @@ namespace YataOnline
 
             ImagesDiv = Document.GetElementById<HTMLDivElement>("PlaceImages");
             loader = Document.GetElementById<HTMLDivElement>("loaderDiv");
+            LoaderText = Document.GetElementById<HTMLParagraphElement>("LoadingText");
 
             TopFrameType = Document.GetElementById<HTMLSelectElement>("Top-screen-TYP");
             BotFrameType = Document.GetElementById<HTMLSelectElement>("Bottom-screen-TYP");

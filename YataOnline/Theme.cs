@@ -108,15 +108,13 @@ namespace YataOnline
             bin.Write(0);
             bin.Write(0);
             bool writeTex78 = textures[2].tex != null && textures[3].tex != null;
-            if (writeTex78) { bin.Write(1); }
-            else { bin.Write(0); }
+            bin.Write((byte)(writeTex78 ? 1 : 0));
             bin.Write(0);
             bin.Write(0);
             bin.Write(0);
             bin.Write(0);
             bool writeTex910 = textures[4].tex != null && textures[5].tex != null;
-            if (writeTex910) { bin.Write(1); }
-            else { bin.Write(0); }
+            bin.Write((byte)(writeTex910 ? 1 : 0));
             bin.Write(0);
             bin.Write(0);
             for (int i = 0; i < 27; i++) { bin.Write(0); }

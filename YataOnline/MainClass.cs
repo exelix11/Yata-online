@@ -115,12 +115,15 @@ namespace YataOnline
             {
                 tex.tex = ImageTool.WhiteImage(t.TopScreenImageID);
                 UpdateShownImg(t.TopImageType, SenderID,tex.tex);
+                Document.GetElementById<HTMLLabelElement>(SenderID + "-LBL").TextContent = SenderID.Replace('-', ' ') + " (" + t.TopImageType.s.x.ToString() + "x" + t.TopImageType.s.y.ToString() + ")";
             }
             else if (SenderID == Theme.Name_BotScr && !(tex.tex.Width == t.BotImageType.s.x && tex.tex.Height == t.BotImageType.s.y))
             {
                 tex.tex = ImageTool.WhiteImage(t.BotScreenImageID);
                 UpdateShownImg(t.BotImageType, SenderID, tex.tex);
+                Document.GetElementById<HTMLLabelElement>(SenderID + "-LBL").TextContent = SenderID.Replace('-', ' ') + " (" + t.BotImageType.s.x.ToString() + "x" + t.BotImageType.s.y.ToString() + ")";
             }
+            OnResized(null);
         }
         
         static void LoadFile(Uint8Array arr) //entrypoint, called from JsFileRead

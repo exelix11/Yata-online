@@ -18,7 +18,7 @@ namespace YataOnline
         static HTMLParagraphElement LoaderText = null;
         static HTMLSelectElement TopFrameType = null;
         static HTMLSelectElement BotFrameType = null;
-        const float AppVersion = 1.1f;
+        const float AppVersion = 1.2f;
 
         public static readonly string[] loadingFaces = new string[] {"(ﾉ≧∀≦)ﾉ・‥…━━━★","o͡͡͡╮༼ ಠДಠ ༽╭o͡͡͡━☆ﾟ.*･｡ﾟ",
             "༼∩✿ل͜✿༽⊃━☆ﾟ. * ･ ｡ﾟ","༼(∩ ͡°╭͜ʖ╮͡ ͡°)༽⊃━☆ﾟ. * ･ ｡ﾟ",
@@ -174,13 +174,16 @@ namespace YataOnline
         static string SenderID = "";
         static void LoadImage(Uint8Array arr)
         {
+            Document.GetElementById<HTMLInputElement>("ImageUpload").Value = ""; //Clear file to fix MS Edge bug
             if (arr.Length < 6)
             {
                 Window.Alert("file too small");
                 return;
             }
-            //PNG and JPEG signatures
-            if (!((arr[0] == 0x89 && arr[1] == 0x50 && arr[2] == 0x4e && arr[3] == 0x47 && arr[4] == 0x0d) || (arr[0] == 0xFF && arr[1] == 0xD8 && arr[2] == 0xFF && arr[3] == 0xE0)))
+            if (!(
+                (arr[0] == 0x89 && arr[1] == 0x50 && arr[2] == 0x4e && arr[3] == 0x47 && arr[4] == 0x0d) || //Png header
+                (arr[0] == 0xFF && arr[1] == 0xD8 && arr[2] == 0xFF && (arr[3] == 0xE0 || arr[3] == 0xE1)) //JPEG arr[3] is 0xE1 if there is EXIF metadata attached
+                ))
             {
                 Window.Alert("unsupported file");
                 return;

@@ -64,6 +64,7 @@
   <ItemGroup>
     <Content Include="index.html" />
     <Content Include="JPEGdecoder.js" />
+    <Content Include="jscolor.min.js" />
     <Content Include="jsFunctions.js" />
     <Content Include="png.min.js" />
   </ItemGroup>

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using Bridge;
+using System.Text.RegularExpressions;
 // If building RELEASE manually change scripts names in index.html (bridge.js => bridge.min.js)
 namespace YataOnline
 {
@@ -14,11 +15,12 @@ namespace YataOnline
     {
         static Theme t = null;
         static HTMLDivElement ImagesDiv = null;
+        static HTMLDivElement ColorsDiv = null;
         static HTMLDivElement loader = null;
         static HTMLParagraphElement LoaderText = null;
         static HTMLSelectElement TopFrameType = null;
         static HTMLSelectElement BotFrameType = null;
-        const float AppVersion = 1.2f;
+        const float AppVersion = 1.3f;
 
         public static readonly string[] loadingFaces = new string[] {"(ﾉ≧∀≦)ﾉ・‥…━━━★","o͡͡͡╮༼ ಠДಠ ༽╭o͡͡͡━☆ﾟ.*･｡ﾟ",
             "༼∩✿ل͜✿༽⊃━☆ﾟ. * ･ ｡ﾟ","༼(∩ ͡°╭͜ʖ╮͡ ͡°)༽⊃━☆ﾟ. * ･ ｡ﾟ",
@@ -33,7 +35,7 @@ namespace YataOnline
             "★≡≡＼（`△´＼）","( ◔ ౪◔)⊃━☆ﾟ.*・",
             "彡ﾟ◉ω◉ )つー☆*","(☆_・)・‥…━━━★",
             "(つ◕౪◕)つ━☆ﾟ.*･｡ﾟ","(つ˵•́ω•̀˵)つ━☆ﾟ.*･｡ﾟ҉̛༽̨҉҉ﾉ",
-            "✩°｡⋆⸜(ू˙꒳​˙ )","╰( ⁰ ਊ ⁰ )━☆ﾟ.*･｡ﾟ"}; //Actually i think the strings can still be changed, but it works
+            "✩°｡⋆⸜(ू˙꒳​˙ )","╰( ⁰ ਊ ⁰ )━☆ﾟ.*･｡ﾟ"}; //Actually i think the strings could still be changed, but it works
 
         static void DoActionWithloading(Action action)
         {
@@ -46,8 +48,9 @@ namespace YataOnline
         {
             Document.GetElementById<HTMLParagraphElement>("pVersion").TextContent = "Ver " + AppVersion.ToString("N1");
             Document.GetElementById<HTMLDivElement>("javascriptWarn").Hidden = true;
-
+            
             ImagesDiv = Document.GetElementById<HTMLDivElement>("PlaceImages");
+            ColorsDiv = Document.GetElementById<HTMLDivElement>("PlaceColorEditors");
             loader = Document.GetElementById<HTMLDivElement>("loaderDiv");
             LoaderText = Document.GetElementById<HTMLParagraphElement>("LoadingText");
 
@@ -102,26 +105,26 @@ namespace YataOnline
 
         private static void ListBoxChanged(Event<HTMLSelectElement> arg)
         {
-            SenderID = arg.CurrentTarget.Id;
-            SenderID = SenderID.Substring(0, SenderID.Length - 4);
+            ImageInputSenderID = arg.CurrentTarget.Id;
+            ImageInputSenderID = ImageInputSenderID.Substring(0, ImageInputSenderID.Length - 4);
 
-            var tex = t.GetTexture(SenderID);
+            var tex = t.GetTexture(ImageInputSenderID);
             t.TopScreenFrameType = (uint)TopFrameType.SelectedIndex;
             t.BotScreenFrameType = (uint)BotFrameType.SelectedIndex;
 
             if (t.TopScreenFrameType == 2) t.TopScreenFrameType = 1; //Invalid value fix            
             
-            if (SenderID == Theme.Name_TopScr && !(tex.tex.Width == t.TopImageType.s.x && tex.tex.Height == t.TopImageType.s.y))
+            if (ImageInputSenderID == Theme.Name_TopScr && !(tex.tex.Width == t.TopImageType.s.x && tex.tex.Height == t.TopImageType.s.y))
             {
                 tex.tex = ImageTool.WhiteImage(t.TopScreenImageID);
-                UpdateShownImg(t.TopImageType, SenderID,tex.tex);
-                Document.GetElementById<HTMLLabelElement>(SenderID + "-LBL").TextContent = SenderID.Replace('-', ' ') + " (" + t.TopImageType.s.x.ToString() + "x" + t.TopImageType.s.y.ToString() + ")";
+                UpdateShownImg(t.TopImageType, ImageInputSenderID, tex.tex);
+                Document.GetElementById<HTMLLabelElement>(ImageInputSenderID + "-LBL").TextContent = ImageInputSenderID.Replace('-', ' ') + " (" + t.TopImageType.s.x.ToString() + "x" + t.TopImageType.s.y.ToString() + ")";
             }
-            else if (SenderID == Theme.Name_BotScr && !(tex.tex.Width == t.BotImageType.s.x && tex.tex.Height == t.BotImageType.s.y))
+            else if (ImageInputSenderID == Theme.Name_BotScr && !(tex.tex.Width == t.BotImageType.s.x && tex.tex.Height == t.BotImageType.s.y))
             {
                 tex.tex = ImageTool.WhiteImage(t.BotScreenImageID);
-                UpdateShownImg(t.BotImageType, SenderID, tex.tex);
-                Document.GetElementById<HTMLLabelElement>(SenderID + "-LBL").TextContent = SenderID.Replace('-', ' ') + " (" + t.BotImageType.s.x.ToString() + "x" + t.BotImageType.s.y.ToString() + ")";
+                UpdateShownImg(t.BotImageType, ImageInputSenderID, tex.tex);
+                Document.GetElementById<HTMLLabelElement>(ImageInputSenderID + "-LBL").TextContent = ImageInputSenderID.Replace('-', ' ') + " (" + t.BotImageType.s.x.ToString() + "x" + t.BotImageType.s.y.ToString() + ")";
             }
             OnResized(null);
         }
@@ -163,15 +166,18 @@ namespace YataOnline
         static void UpdateThemeDIV()
         {
             foreach (var c in ImagesDiv.ChildNodes) ImagesDiv.RemoveChild(c);
+            foreach (var c in ColorsDiv.ChildNodes) ColorsDiv.RemoveChild(c);
             TopFrameType.SelectedIndex = (int)t.TopScreenFrameType;
             BotFrameType.SelectedIndex = (int)t.BotScreenFrameType;
             Document.GetElementById<HTMLInputElement>("EnableBGMchb").Checked = t.BGM;
             Document.GetElementById<HTMLDivElement>("LoadFile").Remove();
-            foreach (var tex in t.textures) AddToPage(tex.tex, tex.name);
+            foreach (var tex in t.textures) AddImageToPage(tex.tex, tex.name);
+            foreach (var col in t.ColorFields) AddColorToPage(col);
             Document.GetElementById<HTMLDivElement>("EditFile").Hidden = false;
         }
 
-        static string SenderID = "";
+        #region ImageEditing
+        static string ImageInputSenderID = "";
         static void LoadImage(Uint8Array arr)
         {
             Document.GetElementById<HTMLInputElement>("ImageUpload").Value = ""; //Clear file to fix MS Edge bug
@@ -211,14 +217,14 @@ namespace YataOnline
 
         static void ApplyImage(HTMLCanvasElement tmpImg)
         {
-            ImageTool.ImageType imgType = ImageTool.ImageTypesByID[t.NameToImageID(SenderID)];
+            ImageTool.ImageType imgType = ImageTool.ImageTypesByID[t.NameToImageID(ImageInputSenderID)];
             HTMLCanvasElement FinalCanvas = new HTMLCanvasElement();
             FinalCanvas.Width = imgType.s.x;
             FinalCanvas.Height = imgType.s.y;
 
             if (tmpImg == null)
             {
-                t.GetTexture(SenderID).tex = null;
+                t.GetTexture(ImageInputSenderID).tex = null;
                 var context = ((CanvasRenderingContext2D)FinalCanvas.GetContext("2d"));
                 context.FillRect(0, 0, imgType.s.x, imgType.s.y);
             }
@@ -237,9 +243,9 @@ namespace YataOnline
             }
 
             var img = ((CanvasRenderingContext2D)FinalCanvas.GetContext("2d")).GetImageData(0, 0, imgType.s.x, imgType.s.y);
-            t.GetTexture(SenderID).tex = tmpImg == null ? null : img;
+            t.GetTexture(ImageInputSenderID).tex = tmpImg == null ? null : img;
 
-            UpdateShownImg(imgType, SenderID, img);
+            UpdateShownImg(imgType, ImageInputSenderID, img);
         }
 
         static void UpdateShownImg(ImageTool.ImageType imgType, string ID, ImageData img)
@@ -250,7 +256,7 @@ namespace YataOnline
             ((CanvasRenderingContext2D)ShownImg.GetContext("2d")).PutImageData(img, 0, 0);
         }
 
-        static void AddToPage(ImageData tex,string Id)
+        static void AddImageToPage(ImageData tex,string Id)
         {
             HTMLDivElement div = new HTMLDivElement();
             div.ClassName = "col";
@@ -262,13 +268,13 @@ namespace YataOnline
             ImageTool.ImageType imgType = ImageTool.ImageTypesByID[t.NameToImageID(Id)];
             c.Height = imgType.s.y;
             c.Width = imgType.s.x;
-            c.OnClick = canvasClick;
+            c.OnClick = ImageCanvasClick;
             c.Style.Margin = "auto";
             c.Style.Border = "black 3px solid";
-            div.AppendChild(MakeLabel(Id, imgType.s.x.ToString() + "x" + imgType.s.y.ToString()));
+            div.AppendChild(MakeImageLabel(Id, imgType.s.x.ToString() + "x" + imgType.s.y.ToString()));
             if (Id != Theme.Name_TopScr && Id != Theme.Name_BotScr)
             {
-                div.AppendChild(MakeCheckBox(Id, tex != null));
+                div.AppendChild(MakeImageEnableCheckBox(Id, tex != null));
             }
             else HtmlCanvasFitSize(c,imgType.s);
             div.AppendChild(c);
@@ -276,17 +282,17 @@ namespace YataOnline
             if (tex != null) ((CanvasRenderingContext2D)c.GetContext("2d")).PutImageData(tex, 0, 0);
         }
 
-        static HTMLDivElement MakeLabel(string ID, string size)
+        static HTMLDivElement MakeImageLabel(string ID, string size)
         {
             HTMLLabelElement _a = new HTMLLabelElement();
-            _a.TextContent = ID.Replace('-',' ') + " (" + size + ")";
+            _a.TextContent = ID.Replace('-', ' ') + " (" + size + ")";
             _a.Id = ID + "-LBL";
             HTMLDivElement _div = new HTMLDivElement();
             _div.AppendChild(_a);
             return _div;
         }
 
-        static HTMLDivElement MakeCheckBox(string id, bool check)
+        static HTMLDivElement MakeImageEnableCheckBox(string id, bool check)
         {
             HTMLDivElement container = new HTMLDivElement();
             container.ClassName = "form-check";
@@ -294,7 +300,7 @@ namespace YataOnline
             chb.Type = InputType.Checkbox;
             chb.Checked = check;
             chb.Id = id + "-CHB";
-            chb.OnChange = chb_changed;
+            chb.OnChange = chb_ImageEnable_changed;
             chb.ClassName = "form-check-input";
             container.AppendChild(chb);
             HTMLLabelElement lab = new HTMLLabelElement();
@@ -305,14 +311,14 @@ namespace YataOnline
             return container;
         }
 
-        private static void chb_changed(Event<HTMLInputElement> arg)
+        private static void chb_ImageEnable_changed(Event<HTMLInputElement> arg)
         {
-            SenderID = arg.CurrentTarget.Id;
-            SenderID = SenderID.Substring(0, SenderID.Length - 4);
+            ImageInputSenderID = arg.CurrentTarget.Id;
+            ImageInputSenderID = ImageInputSenderID.Substring(0, ImageInputSenderID.Length - 4);
             ApplyImage(null);
         }
 
-        private static void canvasClick(MouseEvent<HTMLCanvasElement> arg)
+        private static void ImageCanvasClick(MouseEvent<HTMLCanvasElement> arg)
         {
             if (arg.Target.Id != Theme.Name_TopScr && arg.Target.Id != Theme.Name_BotScr)
             {
@@ -323,9 +329,73 @@ namespace YataOnline
                     return;
                 }
             }
-            SenderID = arg.Target.Id;
+            ImageInputSenderID = arg.Target.Id;
             Document.GetElementById<HTMLInputElement>("ImageUpload").Click();
         }
+        #endregion
+        #region ColorEditing
+        static void AddColorToPage(Theme.ColorField c)
+        {
+            HTMLDivElement flagDiv = new HTMLDivElement();
+            flagDiv.Id = c.name + "-COLDIV";
+            flagDiv.ClassName = "form-check";
+            
+            HTMLInputElement chb = new HTMLInputElement();
+            chb.Style.MarginTop = "7px";
+            chb.Type = InputType.Checkbox;
+            chb.Checked = c.IsEnabled;
+            chb.Id = c.name + "-COLDIV-CHB";
+            chb.ClassName = "form-check-input";
+            flagDiv.AppendChild(chb);           
+            
+            HTMLLabelElement label = new HTMLLabelElement();
+            label.TextContent = c.name;
+            flagDiv.AppendChild(label);
+            for (int i = 0; i < c.colors.Length; i++)
+            {
+                HTMLButtonElement colorbtn = new HTMLButtonElement();
+                colorbtn.Id = c.name + "-COLBTN-" + i.ToString();
+                colorbtn.Style.Border = "1px solid black";
+                colorbtn.Style.MarginLeft = "5px";
+                colorbtn.Style.MarginTop = "-5px";
+                colorbtn.Style.Width = "20px";
+                colorbtn.Style.Height = "20px";
+                Script.Write("var picker = new jscolor(colorbtn);picker.valueElement= null;picker.fromRGB(c.colors[i].R,c.colors[i].G,c.colors[i].B);");
+                colorbtn.TextContent = "";
+                flagDiv.AppendChild(colorbtn);
+            }
+
+            ColorsDiv.AppendChild(flagDiv);
+        }        
+
+        static void ApplyColorsToTheme()
+        {
+            foreach (var field in t.ColorFields)
+            {
+                field.IsEnabled = Document.GetElementById<HTMLInputElement>(field.name + "-COLDIV-CHB").Checked;
+                if (!field.IsEnabled) continue;
+                for (int i = 0; i < field.colors.Length; i++)
+                {
+                    var lbl = Document.GetElementById<HTMLInputElement>(field.name + "-COLBTN-" + i.ToString());
+                    field.colors[i].A = 0xff;
+                    Regex rgx = new Regex(@"^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$", RegexOptions.IgnoreCase); //regex magic
+                    MatchCollection matches = rgx.Matches(lbl.Style.BackgroundColor);
+                    Console.WriteLine(lbl.Style.BackgroundColor);
+                    if (matches.Count == 1 && matches[0].Groups.Count == 4)
+                    {
+                        field.colors[i].R = byte.Parse(matches[0].Groups[1].Value);
+                        field.colors[i].G = byte.Parse(matches[0].Groups[2].Value);
+                        field.colors[i].B = byte.Parse(matches[0].Groups[3].Value);
+                    }
+                    else
+                    {
+                        Window.Alert("Error while parsing color flags, this could be related to you browser, color data might not be saved");
+                        return;
+                    }
+                }
+            }
+        }
+        #endregion
 
         static void SaveTheme()
         {
@@ -334,7 +404,9 @@ namespace YataOnline
             t.BGM = bgm.Checked;
 
             t.TopScreenFrameType = (uint)TopFrameType.SelectedIndex;
-            t.BotScreenFrameType = (uint)BotFrameType.SelectedIndex;            
+            t.BotScreenFrameType = (uint)BotFrameType.SelectedIndex;
+
+            ApplyColorsToTheme();
 
             DoActionWithloading(() =>
             {

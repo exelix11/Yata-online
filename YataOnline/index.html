@@ -12,6 +12,7 @@
     <script src="jsFunctions.js"></script>
     <script src="png.min.js"></script>
     <script src="JPEGdecoder.js"></script>
+    <script src="jscolor.min.js"></script>
     <style>
         .CustomCanvas {
             display: block;
@@ -54,14 +55,19 @@
             left: 0;
             bottom: 0;
             right: 0;
-            animation: scale 0.7s linear alternate infinite;            
+            animation: scale 0.7s linear alternate infinite;
         }
 
         @keyframes scale {
-            0% { transform: scale(0.1); }
-            100% {transform: scale(1); border-color: rgba(255,255,255,0.5);}
-        }
+            0% {
+                transform: scale(0.1);
+            }
 
+            100% {
+                transform: scale(1);
+                border-color: rgba(255,255,255,0.5);
+            }
+        }
     </style>
 </head>
 <body style="background-color: #0b1f30;" onload="YataOnline.MainClass.OnLoaded()">
@@ -88,7 +94,7 @@
                 <button type="button" class="btn btn-success" style="margin-bottom: 5px;" onclick="YataOnline.MainClass.ExampleTheme()">Create an empty theme</button>
             </div>
             <div class="alert alert-warning" style="margin: 1%">
-                <strong>Warning!</strong> This tool is in beta, some features like color flags aren't supported and will be lost when saving a theme.
+                <strong>Warning!</strong> This tool is in beta, sfx and some color flags aren't supported and will be lost when saving.
             </div>
             <div class="alert alert-danger" style="margin: 1%" id="interwebExplorerWarn" hidden>
                 <strong>Warning!</strong> Internet explorer is <strong>NOT</strong> supported, please use a proper browser.
@@ -124,7 +130,7 @@
                     <select class="custom-select" id="Top-screen-TYP">
                         <option value="0">Scroll</option>
                         <option value="1" selected>Fixed</option>
-                        <option value="2" hidden>(Invalid)</option>
+                        <option value="2" hidden>(Invalid)</option> <!--This is not valid, but it's in the list to match the id with the index-->
                         <option value="3">Slow scroll</option>
                     </select>
                 </div>
@@ -141,6 +147,10 @@
             </div>
             <a>Click an image to replace it (the black part is not shown on a 3DS)</a>
             <div class="row" id="PlaceImages">
+
+            </div>
+            <a>Color flags, click on a color to replace it: (Unticked colors are disabled and will be replaced by home menu's default colors)</a>
+            <div id="PlaceColorEditors" align="left">
 
             </div>
             <input type="file" id="ImageUpload" accept=".png, .jpg, .jpeg" style="display: none;" onchange="JsImageRead(files)" />

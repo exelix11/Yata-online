@@ -382,7 +382,6 @@ namespace YataOnline
                     field.colors[i].A = 0xff;
                     Regex rgx = new Regex(@"^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$", RegexOptions.IgnoreCase); //regex magic
                     MatchCollection matches = rgx.Matches(lbl.Style.BackgroundColor);
-                    Console.WriteLine(lbl.Style.BackgroundColor);
                     if (matches.Count == 1 && matches[0].Groups.Count == 4)
                     {
                         field.colors[i].R = byte.Parse(matches[0].Groups[1].Value);

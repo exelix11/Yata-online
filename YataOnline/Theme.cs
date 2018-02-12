@@ -49,7 +49,7 @@ namespace YataOnline
             new ColorField("BottomScreenCloseButton",0x20,new int[] {4,7,10,20,23,26}), //0x74
             new ColorField("BottomScreenTitleTextColor",0xD,new int[] {0,10}), //0x7C
             new ColorField("FolderBackground",0xD,new int[] {0,3,6}), //0x94
-            new ColorField("BottomScreenOverlay",0x15), //0xA4
+            new ColorField("BottomScreenOverlay",0x15 ,new int[] {0,3,6,12,15}), //0xA4
             new ColorField("TopScreenOverlay",0xC, new int[] { 0,9}), //0xAC
             new ColorField("DemoMessage",0x6), //0xB4
             //0x9C unsupported yet
@@ -636,7 +636,7 @@ namespace YataOnline
             new ColorFieldDescriptor{ ID = "BottomScreenCloseButton", name = "Close button", colors = new string[] { "Pressed color", "Unpressed color", "Border", "Text shadow", "Unpressed text color", "Pressed text color" } },
             new ColorFieldDescriptor{ ID = "BottomScreenTitleTextColor", name = "Game text", colors = new string[] { "Background color", "Text color"} },
             new ColorFieldDescriptor{ ID = "FolderBackground", name = "Folder Background", colors = new string[] { "Highlight", "Background color", "Border" } },
-            new ColorFieldDescriptor{ ID = "BottomScreenOverlay", name = "Bottom screen overlay", colors = new string[] { "Left box borders", "Background color", "Icon gradient color (top)", "Icon gradient color (bottom)" , "Pressed color", "Right box borders" } },
+            new ColorFieldDescriptor{ ID = "BottomScreenOverlay", name = "Bottom screen overlay", colors = new string[] { "Borders", "Background color", "Highlight", "Icon gradient color (bottom)", "Icon gradient color (top)" } },
             new ColorFieldDescriptor{ ID = "TopScreenOverlay", name = "Top screen overlay", colors = new string[] { "Background color", "Text color"} },
             new ColorFieldDescriptor{ ID = "DemoMessage", name = "Demo message", colors = new string[] { "Background color", "Text color" } }
         };

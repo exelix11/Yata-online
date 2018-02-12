@@ -38,10 +38,10 @@ namespace YataOnline
             new Texture(Name_IcnSmall)
         };
 
-        public ColorField[] ColorFields = new ColorField[]
+        public ColorField[] ColorFields = new ColorField[] //IDs must match ColorFlagsDescription
         {
-            new ColorField("Cursor",0xC), //0x30
-            new ColorField("3D-Folder",0xC, new int[]{0,3}), //0x38
+            new ColorField("Cursor",0xC, new int[]{ 0,3,9}), //0x30
+            new ColorField("3D-Folder",0xC ), //0x38
             new ColorField("DsiWare-icon",0xD,new int[] {0,3,6}), //0x4C
             new ColorField("ArrowButtons",0xD,new int[] {0,3,6}), //0x60
             new ColorField("Arrows",9), //0x68
@@ -49,10 +49,10 @@ namespace YataOnline
             new ColorField("BottomScreenCloseButton",0x20,new int[] {4,7,10,20,23,26}), //0x74
             new ColorField("BottomScreenTitleTextColor",0xD,new int[] {0,10}), //0x7C
             new ColorField("FolderBackground",0xD,new int[] {0,3,6}), //0x94
-            //0x9C unsupported yet
             new ColorField("BottomScreenOverlay",0x15), //0xA4
-            new ColorField("TopScreenOverlay",0xC), //0xAC
+            new ColorField("TopScreenOverlay",0xC, new int[] { 0,9}), //0xAC
             new ColorField("DemoMessage",0x6), //0xB4
+            //0x9C unsupported yet
         };
 
         static readonly int[] ColorFieldsOffsets = 
@@ -68,8 +68,8 @@ namespace YataOnline
             t.TopScreenFrameType = 1;
             t.BotScreenDrawType = 3;
             t.BotScreenFrameType = 1;
-            t.textures[0].tex = ImageTool.WhiteImage(t.TopScreenImageID);
-            t.textures[1].tex = ImageTool.WhiteImage(t.BotScreenImageID);
+            t.textures[0].tex = ImageEncoding.WhiteImage(t.TopScreenImageID);
+            t.textures[1].tex = ImageEncoding.WhiteImage(t.BotScreenImageID);
             return t;
         }
         
@@ -90,7 +90,7 @@ namespace YataOnline
                 bin.BaseStream.Position = 0x18;
                 uint offset = bin.ReadUInt32();
                 bin.BaseStream.Position = offset;
-                t.GetTexture(Name_TopScr).tex = ImageTool.getImage(bin, t.TopScreenImageID);
+                t.GetTexture(Name_TopScr).tex = ImageEncoding.getImage(bin, t.TopScreenImageID);
             }
 
             bin.BaseStream.Position = 0x20;
@@ -101,7 +101,7 @@ namespace YataOnline
                 bin.BaseStream.Position = 0x28;
                 uint offset = bin.ReadUInt32();
                 bin.BaseStream.Position = offset;
-                t.GetTexture(Name_BotScr).tex = ImageTool.getImage(bin, t.BotScreenImageID);
+                t.GetTexture(Name_BotScr).tex = ImageEncoding.getImage(bin, t.BotScreenImageID);
             }
 
             bin.BaseStream.Position = 0x3C;
@@ -110,9 +110,9 @@ namespace YataOnline
                 uint offs1 = bin.ReadUInt32();
                 uint offs2 = bin.ReadUInt32();
                 bin.BaseStream.Position = offs1;
-                t.GetTexture(Name_Folder).tex = ImageTool.getImage(bin, 7);
+                t.GetTexture(Name_Folder).tex = ImageEncoding.getImage(bin, 7);
                 bin.BaseStream.Position = offs2;
-                t.GetTexture(Name_FolderOpn).tex = ImageTool.getImage(bin, 8);
+                t.GetTexture(Name_FolderOpn).tex = ImageEncoding.getImage(bin, 8);
             }
 
             bin.BaseStream.Position = 0x50;
@@ -121,9 +121,9 @@ namespace YataOnline
                 uint offs1 = bin.ReadUInt32();
                 uint offs2 = bin.ReadUInt32();
                 bin.BaseStream.Position = offs1;
-                t.GetTexture(Name_IcnBig).tex = ImageTool.getImage(bin, 9);
+                t.GetTexture(Name_IcnBig).tex = ImageEncoding.getImage(bin, 9);
                 bin.BaseStream.Position = offs2;
-                t.GetTexture(Name_IcnSmall).tex = ImageTool.getImage(bin, 10);
+                t.GetTexture(Name_IcnSmall).tex = ImageEncoding.getImage(bin, 10);
             }
             #endregion
             #region ReadColorData
@@ -199,9 +199,9 @@ namespace YataOnline
             #region writeImages
             //top 
             {
-                if (textures[0].tex == null) textures[0].tex = ImageTool.WhiteImage(TopScreenImageID);
+                if (textures[0].tex == null) textures[0].tex = ImageEncoding.WhiteImage(TopScreenImageID);
                 uint offset = (uint)bin.BaseStream.Position;
-                bin.Write(ImageTool.bitmapToRawImg(textures[0].tex, TopScreenImageID));
+                bin.Write(ImageEncoding.bitmapToRawImg(textures[0].tex, TopScreenImageID));
                 uint NextOffset = (uint)bin.BaseStream.Position;
                 bin.BaseStream.Position = 0x18;
                 bin.Write(offset);
@@ -210,9 +210,9 @@ namespace YataOnline
 
             {
                 //bottom screen
-                if (textures[1].tex == null) textures[1].tex = ImageTool.WhiteImage(BotScreenImageID);
+                if (textures[1].tex == null) textures[1].tex = ImageEncoding.WhiteImage(BotScreenImageID);
                 uint offset = (uint)bin.BaseStream.Position;
-                bin.Write(ImageTool.bitmapToRawImg(textures[1].tex, BotScreenImageID));
+                bin.Write(ImageEncoding.bitmapToRawImg(textures[1].tex, BotScreenImageID));
                 uint NextOffset = (uint)bin.BaseStream.Position;
                 bin.BaseStream.Position = 0x28;
                 bin.Write(offset);
@@ -223,14 +223,14 @@ namespace YataOnline
             {
                 //FolderTextures
                 uint offset = (uint)bin.BaseStream.Position;
-                bin.Write(ImageTool.bitmapToRawImg(textures[2].tex, 7));
+                bin.Write(ImageEncoding.bitmapToRawImg(textures[2].tex, 7));
                 uint NextOffset = (uint)bin.BaseStream.Position;
                 bin.BaseStream.Position = 0x40;
                 bin.Write(offset);
                 bin.BaseStream.Position = NextOffset;
 
                 offset = (uint)bin.BaseStream.Position;
-                bin.Write(ImageTool.bitmapToRawImg(textures[3].tex, 8));
+                bin.Write(ImageEncoding.bitmapToRawImg(textures[3].tex, 8));
                 NextOffset = (uint)bin.BaseStream.Position;
                 bin.BaseStream.Position = 0x44;
                 bin.Write(offset);
@@ -241,14 +241,14 @@ namespace YataOnline
             {
                 //Icon textures
                 uint offset = (uint)bin.BaseStream.Position;
-                bin.Write(ImageTool.bitmapToRawImg(textures[4].tex, 9));
+                bin.Write(ImageEncoding.bitmapToRawImg(textures[4].tex, 9));
                 uint NextOffset = (uint)bin.BaseStream.Position;
                 bin.BaseStream.Position = 0x54;
                 bin.Write(offset);
                 bin.BaseStream.Position = NextOffset;
 
                 offset = (uint)bin.BaseStream.Position;
-                bin.Write(ImageTool.bitmapToRawImg(textures[5].tex, 10));
+                bin.Write(ImageEncoding.bitmapToRawImg(textures[5].tex, 10));
                 NextOffset = (uint)bin.BaseStream.Position;
                 bin.BaseStream.Position = 0x58;
                 bin.Write(offset);
@@ -260,8 +260,8 @@ namespace YataOnline
             return mem.ToArray();
         }
 
-        public ImageTool.ImageType TopImageType { get { return ImageTool.ImageTypesByID[TopScreenImageID]; } }
-        public ImageTool.ImageType BotImageType { get { return ImageTool.ImageTypesByID[BotScreenImageID]; } }
+        public ImageEncoding.ImageType TopImageType { get { return ImageEncoding.ImageTypesByID[TopScreenImageID]; } }
+        public ImageEncoding.ImageType BotImageType { get { return ImageEncoding.ImageTypesByID[BotScreenImageID]; } }
 
         public int TopScreenImageID { get { if (TopScreenFrameType == 0 || TopScreenFrameType == 3) return 1; else return 0; } }
         public int BotScreenImageID { get {
@@ -303,13 +303,13 @@ namespace YataOnline
             public bool IsEnabled = false;
             byte[] data;
             int[] Offsets = null;
-            public string name;
+            public string ID;
             public Color[] colors;
 
-            public ColorField(string _name,int byteCount, int[] _Offsets = null)
+            public ColorField(string _id,int byteCount, int[] _Offsets = null)
             {
                 IsEnabled = false;
-                name = _name;
+                ID = _id;
                 Offsets = _Offsets;
                 colors = new Color[_Offsets == null ? byteCount/3 : _Offsets.Length];
                 data = new byte[byteCount];
@@ -370,7 +370,7 @@ namespace YataOnline
         }
     }
 
-    public static class ImageTool
+    public static class ImageEncoding
     {
         public enum Encoding : int //the int value is the number of bytes per pixel
         {
@@ -608,78 +608,43 @@ namespace YataOnline
             y &= 0x0000ffff;
         }
     }
-    
-    static class BinaryMath
+
+    public static class ColorFlagsDescription
     {
-        //Some binary magic
-        public static bool IsPowerOfTwo(int x) { return (x & (x - 1)) == 0; }
+        public struct ColorFieldDescriptor
+        {
+            public string ID;
+            public string name;
+            public string[] colors;
 
-        public static int FastMod(int n, int m) { return n & (m - 1); }
-
-        public static int DivideByPowerOf2(int x, int n) { return (x + ((x >> 31) & ((1 << n) + ~0))) >> n; }
-
-        public static int Log2(int v)
-        {
-            int r = 0xFFFF - v >> 31 & 0x10;
-            v >>= r;
-            int shift = 0xFF - v >> 31 & 0x8;
-            v >>= shift;
-            r |= shift;
-            shift = 0xF - v >> 31 & 0x4;
-            v >>= shift;
-            r |= shift;
-            shift = 0x3 - v >> 31 & 0x2;
-            v >>= shift;
-            r |= shift;
-            r |= (v >> 1);
-            return r;
-        }
-    }
-
-    public static class Exten
-    {
-        public static uint ToU32(this byte[] b)
-        {
-            return (uint)BitConverter.ToInt32(b, 0);
-        }
-        public static bool isPower2(this int x)
-        {
-            return (x != 0) && ((x & (x - 1)) == 0);
-        }
-        public static void SetPixel(this ImageData img, uint x, uint y, int R, int G, int B, int A)
-        {
-            int index = (int)(y * img.Width + x) * 4;
-            img.Data[index++] = (byte)R;
-            img.Data[index++] = (byte)G;
-            img.Data[index++] = (byte)B;
-            img.Data[index] = (byte)A;
-        }
-        public static Color GetPixel(this ImageData img, uint x, uint y)
-        {
-            Color c;
-            int index = (int)(y * img.Width + x) * 4;
-            c.R = img.Data[index++];
-            c.G = img.Data[index++];
-            c.B = img.Data[index++];
-            c.A = img.Data[index];
-            return c;
+            public string ColorAt(int index)
+            {
+                if (colors == null || index < 0 || index >= colors.Length) return "unknown";
+                else return colors[index];
+            }
         }
 
-        public static string ToDataUrl(this ImageData img)
+        static readonly ColorFieldDescriptor[] descriptors = new ColorFieldDescriptor[]
         {
-            HTMLCanvasElement tmp = new HTMLCanvasElement();
-            ((CanvasRenderingContext2D)tmp.GetContext("2d")).PutImageData(img, 0, 0);
-            return tmp.ToDataURL();
-        }
+            new ColorFieldDescriptor{ ID = "____unknownField", name = "unknown", colors = new string[] { } },
+            new ColorFieldDescriptor{ ID = "Cursor", name = "Cursor", colors = new string[] {"Shadow", "Main color", "Glow" } },
+            new ColorFieldDescriptor{ ID = "3D-Folder", name = "3D Folder", colors = new string[] { "Main color", "Light color", "Highlight", "Shadow"} },
+            new ColorFieldDescriptor{ ID = "DsiWare-icon", name = "DsiWare icon", colors = new string[] { "Bottom shadow", "Main color", "Highlight" } },
+            new ColorFieldDescriptor{ ID = "ArrowButtons", name = "Bottom screen arrow buttons", colors = new string[] { "Shading" , "Main color", "Glow" } },
+            new ColorFieldDescriptor{ ID = "Arrows", name = "Bottom screen arrows", colors = new string[] { "Border", "Unpressed color", "Pressed color"} },
+            new ColorFieldDescriptor{ ID = "BottomScreenOpenButton", name = "Launch button", colors = new string[] { "Pressed color", "Unpressed color", "Border", "Text shadow", "Unpressed text color", "Pressed text color"} },
+            new ColorFieldDescriptor{ ID = "BottomScreenCloseButton", name = "Close button", colors = new string[] { "Pressed color", "Unpressed color", "Border", "Text shadow", "Unpressed text color", "Pressed text color" } },
+            new ColorFieldDescriptor{ ID = "BottomScreenTitleTextColor", name = "Game text", colors = new string[] { "Background color", "Text color"} },
+            new ColorFieldDescriptor{ ID = "FolderBackground", name = "Folder Background", colors = new string[] { "Highlight", "Background color", "Border" } },
+            new ColorFieldDescriptor{ ID = "BottomScreenOverlay", name = "Bottom screen overlay", colors = new string[] { "Left box borders", "Background color", "Icon gradient color (top)", "Icon gradient color (bottom)" , "Pressed color", "Right box borders" } },
+            new ColorFieldDescriptor{ ID = "TopScreenOverlay", name = "Top screen overlay", colors = new string[] { "Background color", "Text color"} },
+            new ColorFieldDescriptor{ ID = "DemoMessage", name = "Demo message", colors = new string[] { "Background color", "Text color" } }
+        };
 
-        public static uint FastMod(this uint num, int num2)
+        public static ColorFieldDescriptor getByID(string ID)
         {
-            return (uint)BinaryMath.FastMod((int)num, num2);
-        }
-
-        public static uint FastDiv(this uint num, int num2)
-        {
-            return (uint)BinaryMath.DivideByPowerOf2((int)num, num2);
+            foreach (var d in descriptors) if (d.ID == ID) return d;
+            return descriptors[0];
         }
     }
 }

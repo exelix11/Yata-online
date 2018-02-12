@@ -79,7 +79,7 @@ namespace YataOnline
             HtmlCanvasFitSize(Document.GetElementById<HTMLCanvasElement>(Theme.Name_BotScr), t.BotImageType.s);
         }
 
-        static void HtmlCanvasFitSize(HTMLCanvasElement em, ImageTool.Size OriginalSize)
+        static void HtmlCanvasFitSize(HTMLCanvasElement em, ImageEncoding.Size OriginalSize)
         {
             if (em == null) return;
             var width = Window.InnerWidth - 60;
@@ -116,13 +116,13 @@ namespace YataOnline
             
             if (ImageInputSenderID == Theme.Name_TopScr && !(tex.tex.Width == t.TopImageType.s.x && tex.tex.Height == t.TopImageType.s.y))
             {
-                tex.tex = ImageTool.WhiteImage(t.TopScreenImageID);
+                tex.tex = ImageEncoding.WhiteImage(t.TopScreenImageID);
                 UpdateShownImg(t.TopImageType, ImageInputSenderID, tex.tex);
                 Document.GetElementById<HTMLLabelElement>(ImageInputSenderID + "-LBL").TextContent = ImageInputSenderID.Replace('-', ' ') + " (" + t.TopImageType.s.x.ToString() + "x" + t.TopImageType.s.y.ToString() + ")";
             }
             else if (ImageInputSenderID == Theme.Name_BotScr && !(tex.tex.Width == t.BotImageType.s.x && tex.tex.Height == t.BotImageType.s.y))
             {
-                tex.tex = ImageTool.WhiteImage(t.BotScreenImageID);
+                tex.tex = ImageEncoding.WhiteImage(t.BotScreenImageID);
                 UpdateShownImg(t.BotImageType, ImageInputSenderID, tex.tex);
                 Document.GetElementById<HTMLLabelElement>(ImageInputSenderID + "-LBL").TextContent = ImageInputSenderID.Replace('-', ' ') + " (" + t.BotImageType.s.x.ToString() + "x" + t.BotImageType.s.y.ToString() + ")";
             }
@@ -217,7 +217,7 @@ namespace YataOnline
 
         static void ApplyImage(HTMLCanvasElement tmpImg)
         {
-            ImageTool.ImageType imgType = ImageTool.ImageTypesByID[t.NameToImageID(ImageInputSenderID)];
+            ImageEncoding.ImageType imgType = ImageEncoding.ImageTypesByID[t.NameToImageID(ImageInputSenderID)];
             HTMLCanvasElement FinalCanvas = new HTMLCanvasElement();
             FinalCanvas.Width = imgType.s.x;
             FinalCanvas.Height = imgType.s.y;
@@ -248,7 +248,7 @@ namespace YataOnline
             UpdateShownImg(imgType, ImageInputSenderID, img);
         }
 
-        static void UpdateShownImg(ImageTool.ImageType imgType, string ID, ImageData img)
+        static void UpdateShownImg(ImageEncoding.ImageType imgType, string ID, ImageData img)
         {
             HTMLCanvasElement ShownImg = Document.GetElementById<HTMLCanvasElement>(ID);
             ShownImg.Width = imgType.s.x;
@@ -265,7 +265,7 @@ namespace YataOnline
             c.Id = Id;
             c.ClassName = "CustomCanvas";
             c.Style.BackgroundColor = "#FAFAFA";
-            ImageTool.ImageType imgType = ImageTool.ImageTypesByID[t.NameToImageID(Id)];
+            ImageEncoding.ImageType imgType = ImageEncoding.ImageTypesByID[t.NameToImageID(Id)];
             c.Height = imgType.s.y;
             c.Width = imgType.s.x;
             c.OnClick = ImageCanvasClick;
@@ -336,31 +336,33 @@ namespace YataOnline
         #region ColorEditing
         static void AddColorToPage(Theme.ColorField c)
         {
+            var fieldDescription = ColorFlagsDescription.getByID(c.ID);
+
             HTMLDivElement flagDiv = new HTMLDivElement();
-            flagDiv.Id = c.name + "-COLDIV";
+            flagDiv.Id = c.ID + "-COLDIV";
             flagDiv.ClassName = "form-check";
             
             HTMLInputElement chb = new HTMLInputElement();
             chb.Style.MarginTop = "7px";
             chb.Type = InputType.Checkbox;
             chb.Checked = c.IsEnabled;
-            chb.Id = c.name + "-COLDIV-CHB";
+            chb.Id = c.ID + "-COLDIV-CHB";
             chb.ClassName = "form-check-input";
             flagDiv.AppendChild(chb);           
             
             HTMLLabelElement label = new HTMLLabelElement();
-            label.TextContent = c.name;
+            label.TextContent = fieldDescription.name;
             flagDiv.AppendChild(label);
             for (int i = 0; i < c.colors.Length; i++)
             {
                 HTMLButtonElement colorbtn = new HTMLButtonElement();
-                colorbtn.Id = c.name + "-COLBTN-" + i.ToString();
+                colorbtn.Id = c.ID + "-COLBTN-" + i.ToString();
                 colorbtn.Style.Border = "1px solid black";
                 colorbtn.Style.MarginLeft = "5px";
                 colorbtn.Style.MarginTop = "-5px";
                 colorbtn.Style.Width = "20px";
-                colorbtn.Style.Height = "20px";
-                Script.Write("var picker = new jscolor(colorbtn);picker.valueElement= null;picker.fromRGB(c.colors[i].R,c.colors[i].G,c.colors[i].B);");
+                colorbtn.Style.Height = "20px";                
+                Script.Write("var picker = new jscolor(colorbtn);picker.valueElement= null;picker.fromRGB(c.colors[i].R,c.colors[i].G,c.colors[i].B);picker.closable=true;picker.closeText=fieldDescription.ColorAt(i);"); //Js magic
                 colorbtn.TextContent = "";
                 flagDiv.AppendChild(colorbtn);
             }
@@ -372,11 +374,11 @@ namespace YataOnline
         {
             foreach (var field in t.ColorFields)
             {
-                field.IsEnabled = Document.GetElementById<HTMLInputElement>(field.name + "-COLDIV-CHB").Checked;
+                field.IsEnabled = Document.GetElementById<HTMLInputElement>(field.ID + "-COLDIV-CHB").Checked;
                 if (!field.IsEnabled) continue;
                 for (int i = 0; i < field.colors.Length; i++)
                 {
-                    var lbl = Document.GetElementById<HTMLInputElement>(field.name + "-COLBTN-" + i.ToString());
+                    var lbl = Document.GetElementById<HTMLInputElement>(field.ID + "-COLBTN-" + i.ToString());
                     field.colors[i].A = 0xff;
                     Regex rgx = new Regex(@"^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$", RegexOptions.IgnoreCase); //regex magic
                     MatchCollection matches = rgx.Matches(lbl.Style.BackgroundColor);
